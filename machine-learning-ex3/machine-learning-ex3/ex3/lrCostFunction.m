@@ -35,20 +35,20 @@ grad = zeros(size(theta));
 %           temp(1) = 0;   % because we don't add anything for j = 0  
 %           grad = grad + YOUR_CODE_HERE (using the temp variable)
 %
+
+%cost
 h = sigmoid(X*theta);
 
 J = (-y'*log(h)-(1-y')*log(1-h)) / m;
 
 J = J + norm(theta(2:end))^2 * lambda / (2*m);
 
+%gradient
+grad = (X' * (h-y)) / m;
 
-
-
-
-
-
-
-
+temp = theta;
+temp(1) = 0;
+grad = grad + lambda/m * temp;
 
 
 % =============================================================
