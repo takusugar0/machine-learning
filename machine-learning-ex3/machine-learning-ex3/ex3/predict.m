@@ -23,10 +23,11 @@ p = zeros(size(X, 1), 1);
 
 X = [ones(m, 1) X];
 
-  
+%　隠れ層の実装
 A2 = sigmoid(X * Theta1');
 A2 = [ones(m,1), A2];
 
+%　出力
 H = sigmoid(A2 * Theta2');
 [_,p] = max(H, [], 2);
 
