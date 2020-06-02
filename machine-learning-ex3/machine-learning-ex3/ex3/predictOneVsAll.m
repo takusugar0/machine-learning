@@ -30,7 +30,7 @@ X = [ones(m, 1) X];
 %       for each row.
 %       
 
-
+%行ごとの最大値を求める
 [_,p] = max(X * all_theta', [], 2);
 
 
