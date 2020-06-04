@@ -55,7 +55,7 @@ initial_theta = zeros(n + 1, 1);
 % Set options for fminunc
 options = optimset('GradObj', 'on', 'MaxIter', 50);
 
-% 最適なθを求める　Θは10×401の行列
+% 最適なθを求める　Θは10×401の行列 labelごとに計算。forで回す
 for c = 1:num_labels
   all_theta(c,:) = ...
     fmincg (@(t)(lrCostFunction(t, X, (y == c), lambda)), initial_theta, options);
