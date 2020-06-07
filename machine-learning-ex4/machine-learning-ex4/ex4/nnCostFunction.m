@@ -62,6 +62,34 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+% X          5000 x 400
+% y          5000 x 1
+% nn_ params 10285 x 1
+% Theta1       25 x 401
+% Theta2       10 x 26
+
+% まずはyをYにマッピングする
+Y = zeros(m,num_ labels);  % 5000 x 10
+for i = 1:m 
+  Y(i,y(i)) = 1;
+end
+
+% h_ thetaの計算。行列のサイズを確認
+A1 = [ones(m,1) X];             % 5000 x 401
+Z2 = A1 * Theta1';              % 5000 x 25                   
+A2 = [ones(m,1) sigmoid(Z2)];   % 5000 x 26
+Z3 = A2 * Theta2';              % 5000 x 10
+h = sigmoid(Z3);                % 5000 x 10
+
+% 全部揃ったのでコスト関数をloopで計算
+for i = 1:m
+  for k = 1:num_ labels
+    J += -Y(i,k) * log(h(i,k)) - (1-Y(i,k)) * log(1 - h(i,k));
+  end
+end
+
+J = J/m;
+
 
 
 
