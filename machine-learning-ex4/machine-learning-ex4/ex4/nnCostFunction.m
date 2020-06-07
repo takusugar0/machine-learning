@@ -68,47 +68,76 @@ Theta2_grad = zeros(size(Theta2));
 % Theta1       25 x 401
 % Theta2       10 x 26
 
-% まずはyをYにマッピングする
-Y = zeros(m,num_ labels);  % 5000 x 10
-for i = 1:m 
-  Y(i,y(i)) = 1;
-end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1.3 Feedforward and cost function
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Theta1 has size 25 x 401
+% Theta2 has size 10 x 26
+% y has size 5000 x 1
 
-% h_ thetaの計算。行列のサイズを確認
-A1 = [ones(m,1) X];             % 5000 x 401
-Z2 = A1 * Theta1';              % 5000 x 25                   
-A2 = [ones(m,1) sigmoid(Z2)];   % 5000 x 26
-Z3 = A2 * Theta2';              % 5000 x 10
-h = sigmoid(Z3);                % 5000 x 10
+Y = zeros(m, num_labels); % [5000,10]
 
-% 全部揃ったのでコスト関数をloopで計算
 for i = 1:m
-  for k = 1:num_ labels
-    J += -Y(i,k) * log(h(i,k)) - (1-Y(i,k)) * log(1 - h(i,k));
-  end
-end
+    Y(i,y(i)) = 1;
+endfor
 
-J = J/m;
+a1 = X;
+z2 = [ones(m, 1), X] * Theta1';
+a2 = sigmoid(z2);               % [5000, 25]
+z3 = [ones(m, 1), a2] * Theta2';
+h = sigmoid(z3);                % [5000, 10]
 
+cost = -Y .* log(h) - (1 - Y) .* log(1 - h); % [5000,10]
+J = (1/m) * sum(cost(:));       % scalar
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1.4 Regularized cost function
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Theta1_nobias = Theta1(:, 2:end); %[25, 400]
+Theta2_nobias = Theta2(:, 2:end); %[10, 25]
+reg = lambda / (2*m) * (sumsq(Theta1_nobias(:)) + sumsq(Theta2_nobias(:))); % scalar
+J = J + reg;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 2.3 Backpropagation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Delta1 = Delta2 = 0.0;
+for t=1:m
+    % step 1 =========================
+    a1 = [1; X(t,:)'];     % 401x1
 
+    z2 = Theta1 * a1;      % 25x1
+    a2 = [1; sigmoid(z2)]; % 26x1
 
+    z3 = Theta2 * a2;      % 10x1
+    a3 = sigmoid(z3);      % 10x1
+    
+    % step 2 ==========================
+    % compute delta of the output layer3
+    delta_layer_3 = a3 - Y(t,:)'; % [10, 1]
+    
+    % step 3 ==========================
+    % compute delta of the layer2
+    delta_layer_2 = (Theta2_nobias' * delta_layer_3) .* sigmoidGradient(z2); % 25x10 * 10x1 = [25, 1]
+    
+    % step 4 ==========================
+    % Accumulate the gradient
+    Delta2 = Delta2 + delta_layer_3 * a2'; % 10x1 * 1x26  = [10, 26]
+    Delta1 = Delta1 + delta_layer_2 * a1'; % 25x1 * 1x401 = [25, 401]
 
+endfor
 
+% step 5 ==========================
+% Accumulate the gradient
+Theta1_grad = 1.0/m * Delta1;
+Theta2_grad = 1.0/m * Delta2;
 
-
-
-
-
-
-
-
-
-
-
-% -------------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 2.5 Regularized Neural Networks
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Theta1_grad(:, 2:end) = Theta1_grad(:, 2:end) + ((lambda / m) * Theta1_nobias);
+Theta2_grad(:, 2:end) = Theta2_grad(:, 2:end) + ((lambda / m) * Theta2_nobias);
 
 % =========================================================================
 
